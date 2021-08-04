@@ -1,17 +1,16 @@
 import discord
 from discord.ext import commands
-from itertools import cycle
-import os
-import jishaku
+import jishaku # For debugging
 
 
-
+# Definite the BOT
 intents = discord.Intents.default()
-intents.members = True
-activity = discord.Activity(type=discord.ActivityType.watching, name="for chat | $help")
+intents.members = True 
+activity = discord.Activity(type=discord.ActivityType.watching, name="for chat | $help") # You can change this status into your
 bot = commands.Bot(command_prefix="$", intents=intents,activity=activity)
+# command_prefix="$" can be changed into anything you want
 
-
+# These are the cogs
 bot.load_extension('jishaku')
 bot.load_extension("basic")
 bot.load_extension('moderation')
@@ -28,7 +27,7 @@ async def on_ready():
 
 
 
-
+# This will change the status of the BOT
 @bot.command(description="*For owner only*: Change Articuno's status")
 @commands.is_owner()
 async def change(ctx, type, *, status):
@@ -48,5 +47,5 @@ async def change(ctx, type, *, status):
 
 
 
-
+# Put your token here
 bot.run("YOUR TOKEN GO HERE")
