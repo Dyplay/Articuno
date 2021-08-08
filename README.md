@@ -18,7 +18,7 @@ FIRST THING FIRST:
 ```py -3 -m pip install -U discord.py```
 
 - Install these packages with ``pip``: ``jishaku`` ``psutil`` ``aiohttp`` ``requests``
-- 
+
 # Command to use:
 ```py -3 -m pip install -U discord.py```
 ```pip install jishaku```
