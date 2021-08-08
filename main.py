@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 import jishaku # For debugging
+import data # Take the token that stored in data.py
 
 
 # Definite the BOT
@@ -48,4 +49,4 @@ async def change(ctx, type, *, status):
 
 
 # Put your token here
-bot.run("YOUR TOKEN GO HERE")
+bot.run(data.TOKEN)
