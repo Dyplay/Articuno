@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 import asyncio
+import data
 
 blue = 0x236adf
 red = 0xff0000
@@ -70,7 +71,7 @@ class Moderation(commands.Cog):
     @commands.has_permissions(manage_messages = True)
     async def mute(self, ctx, member: discord.Member, *, reason=None):
         guild = ctx.guild
-        mutedRole = discord.utils.get(guild.roles, name="🔇║Muted") # You can change the name of the mute role into the role you want in your server
+        mutedRole = discord.utils.get(guild.roles, name=data.MUTE_ROLE) # You can change the name of the mute role into the role you want in your server
         
         channel_message = discord.Embed(title=f"{member.name} has been muted.", description=f"Reason: {reason}", colour=red)
         user = discord.Embed(title=f"You have been muted by {ctx.author.name} in {ctx.guild.name}.", description=f"Reason: {reason}", color=red)
@@ -96,7 +97,7 @@ class Moderation(commands.Cog):
     @commands.has_permissions(manage_messages = True)
     async def unmute(self, ctx, member: discord.Member):
 
-        mutedRole = discord.utils.get(ctx.guild.roles, name="🔇║Muted") # Like above, change the name of the mute role into the one you want
+        mutedRole = discord.utils.get(ctx.guild.roles, name=data.MUTE_ROLE) # Like above, change the name of the mute role into the one you want
 
         # Still buggy like :woozy_face:
         try:
