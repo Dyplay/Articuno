@@ -118,7 +118,7 @@ class Fun(commands.Cog):
         if not name2:
           name2 = ctx.author.name
           name1 = name1
-
+# You can add more answer if you want. I barely have time to think more :(
         if 0 <= shipnumber <= 30:
           comment = "Really low! {}".format(random.choice(
             ["Friendzone ;(", 
