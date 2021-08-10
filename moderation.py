@@ -19,7 +19,7 @@ class Moderation(commands.Cog):
 
     @commands.command(description="Ban a specified member")
     @commands.has_permissions(ban_members = True)
-    async def ban(self, ctx, member : discord.Member, *, reason = None,):
+    async def ban(self, ctx, member : discord.Member, *, reason = None):
         channel_message = discord.Embed(title=f"{member.name} has been banned by {ctx.author.name}.", description=f"Reason: {reason}", color=red)
         user = discord.Embed(title=f"You have been banned by {ctx.author.name} in {ctx.guild.name}.", description=f"Reason: {reason}", color=red)
 
