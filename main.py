@@ -7,7 +7,7 @@ import data # Take the token that stored in data.py
 # Definite the BOT
 intents = discord.Intents.default()
 intents.members = True 
-activity = discord.Activity(type=discord.ActivityType.watching, name="for chat | $help") # You can change this status into your
+activity = discord.Activity(type=discord.ActivityType.watching, name="for chat | $help") # You can change this status into yours
 bot = commands.Bot(command_prefix="$", intents=intents,activity=activity)
 # command_prefix="$" can be changed into anything you want
 
