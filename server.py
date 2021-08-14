@@ -1,11 +1,11 @@
 import discord
 from discord.ext import commands
-import random
 from discord.ext.commands import Greedy
 from discord import User
 import asyncio
 from typing import Union
 import requests
+
 
 
 blue = 0x236adf
@@ -22,42 +22,81 @@ class Server(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @commands.command(description="About the channel")
-    async def server(self, ctx): # Information about the server
-        name = str(ctx.guild.name) # Name of the server
-        id = str(ctx.guild.id) # ID
-        memberCount = str(ctx.guild.member_count) # How many members
-        icon = str(ctx.guild.icon_url) # Icon
-        owner = str(ctx.guild.owner.id) # Owner
-        region = str(ctx.guild.region) # Region
-        created = str(ctx.guild.created_at.strftime("%B %d, %Y")) # The created time
+    @commands.command(description="About the channel", aliases=['serverinfo'])
+    async def server(self, ctx):
+        name = str(ctx.guild.name)
+        id = str(ctx.guild.id)
+        memberCount = str(ctx.guild.member_count)
+        memberer = 0
+        for member in ctx.guild.members:
+            if not member.bot:
+                memberer += 1
+        if ctx.invoked_subcommand is None:
+            bots = sum(1 for member in ctx.guild.members if member.bot)
+        icon = str(ctx.guild.icon_url)
+        owner = str(ctx.guild.owner.id)
+        region = str(ctx.guild.region)
+        created = str(ctx.guild.created_at.strftime("%B %d, %Y"))
+        boost = ctx.guild.premium_subscription_count
+        if boost <= 2:
+            comment = "Level 0"
+        if 2 <= boost < 15:
+            comment = "Level 1"
+        if 15 <= boost < 30:
+            comment = "Level 2"
+        if boost >= 30:
+            comment = "Level 3"
+        text_channel = len(ctx.guild.text_channels)
+        voice_channel = len(ctx.guild.voice_channels)
+        verify_level = ctx.guild.verification_level
 
         embed = discord.Embed(title=name + " Information", color=blue)
         embed.set_thumbnail(url=icon)
-        embed.add_field(name="Server ID", value=id, inline=True)
-        embed.add_field(name="Member Count", value=memberCount + ":people_holding_hands:", inline=True)
-        embed.add_field(name="Owner", value=f"<@{owner}>", inline=True)
-        embed.add_field(name="Region", value=region, inline=True)
-        embed.add_field(name="Created on", value=created, inline=True)
-        embed.set_footer(text=f"Owner: {ctx.guild.owner.name}")
+        embed.add_field(name="Server ID :id:", value=id, inline=True)
+        embed.add_field(name="Owner :crown:", value=f"<@{owner}>\nID: {owner}", inline=True)
+        embed.add_field(name="Boost :gem:", value=f"Number: {boost}\n{comment}",inline=True)
+        embed.add_field(name="Member :busts_in_silhouette:", value=f"Total: {memberCount}\nHumans: {memberer}\nBOTs: {bots}", inline=True)
+        embed.add_field(name="Channels :keyboard:", value=f"<:text_channel:873442091424944178>Text channels: {text_channel}\n<:voice_channel:873442207758159904>Voice channels: {voice_channel}")
+        embed.add_field(name="Region :globe_with_meridians:", value=region, inline=True)
+        embed.add_field(name="Created on :clock1:", value=created, inline=True)
+        embed.add_field(name="Verify level :shield:", value=f"Level: {verify_level}")
+        embed.set_footer(icon_url=ctx.author.avatar_url, text=f"Requested by {ctx.author.name}")
 
         await ctx.send(embed=embed)
 
 
 
-    @commands.command(description="Gets info about a specified user")
-    async def info(self, ctx, member : discord.Member=None): # Information about a user
+    @commands.command(description="Gets info about a specified user",aliases=['userinfo', 'whois', 'user'])
+    async def info(self, ctx, member : discord.Member=None):
         if not member:
           member = ctx.author
-
-        embed=discord.Embed(title="User info", colour=random.randint(0, 0xFFFFFF))
+        profile = member.public_flags
+        hypesquad = "None"
+        if profile.hypesquad_bravery == True:
+                hypesquad = "<:bravery:875411242917969961> Bravery"
+        if profile.hypesquad_brilliance == True:  
+                hypesquad = "<:brilliance:875411403413000233> Brilliance"        
+        if profile.hypesquad_balance == True:
+                hypesquad = "<:balance:875411281350369330> Ballance"
+        supporter = "No"
+        if profile.early_supporter == True:
+            supporter = "<:earlysupporter:875412600341540874> Yes"
+        if not member.bot:
+            bot = "No"
+        else:
+            bot = "Yes"
+        color = member.top_role.color
+        embed=discord.Embed(title="User info", colour=color)
         embed.set_thumbnail(url=member.avatar_url)
         embed.add_field(name="Name", value=member.name, inline=True)
         embed.add_field(name="Nickname", value=member.nick, inline=True)
         embed.add_field(name="ID", value=member.id, inline=True)
         embed.add_field(name="Joined on", value=member.joined_at.strftime("%B %d, %Y"), inline=True)
-        embed.add_field(name="Top role", value=member.top_role.name, inline=True)
+        embed.add_field(name="Top role", value=f"<@&{member.top_role.id}>", inline=True)
         embed.add_field(name="Created on", value=member.created_at.strftime("%B %d, %Y"), inline=True)
+        embed.add_field(name="Hypesquad", value=f"{hypesquad}")
+        embed.add_field(name="Bot?", value=bot)
+        embed.add_field(name="Early Supporter?", value=supporter)
         embed.set_footer(icon_url=member.avatar_url, text=f"Requested by {ctx.author.name}")
 
         await ctx.send(embed=embed)
@@ -65,7 +104,7 @@ class Server(commands.Cog):
     
 
     @commands.command(description="DM yourself")
-    async def dm(self, ctx, *, message): # Make the BOT DM yourself
+    async def dm(self, ctx, *, message):
       try:
         embed = discord.Embed(title=f"Here is the message:", description=f"{message}", color=green)
         await ctx.author.send(embed=embed)
@@ -78,7 +117,7 @@ class Server(commands.Cog):
 
     @commands.command(description="*For admin only*: DM a group of member")
     @commands.has_permissions(administrator = True)
-    async def message(self, ctx, users: Greedy[User], *, message): # For admin only: Use this to announce something to a group of member. The BOT doesn't handle reply so this will use like a fast announcement
+    async def message(self, ctx, users: Greedy[User], *, message):
       try:
         for user in users:
             embed = discord.Embed(title=f"From {ctx.author.name}", description=f"**Here is the message:** {message}", color=green)
@@ -91,8 +130,8 @@ class Server(commands.Cog):
         
     @commands.command()
     @commands.has_permissions(manage_messages=True)
-    async def clean(self, ctx, amount=5): # Delete message
-      if amount >= 101: # You can increase the limit or delete it. I suggest only delete 100 message at a time
+    async def clean(self, ctx, amount=5):
+      if amount >= 101:
         await ctx.send("Uh, I only allow you to delete 100 messages a time")
       else:
         await ctx.message.delete()
@@ -103,16 +142,15 @@ class Server(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(manage_emojis=True)
-    async def emojisteal(self, ctx, emoji: Union[discord.Emoji, discord.PartialEmoji], name=None): # Steal a custom emoji from another server
-    # You can only use this command to add a custom emoji from another server if you have Nitro. Otherwise, use the below method
+    async def emojisteal(self, ctx, emoji: Union[discord.Emoji, discord.PartialEmoji], name=None):
         if not name:
           name = emoji.name
         await ctx.guild.create_custom_emoji(name=name, image=await emoji.url.read())
-        await ctx.send(f"Successfully added the emoji {name}")
+        await ctx.send(f"Successfully added the emoji ``[:{name}:]``")
 
     @commands.command()
     @commands.has_permissions(manage_emojis=True)
-    async def emojiadd(self, ctx, url, name): # Add an emoji from a URL
+    async def emojiadd(self, ctx, url, name):
         try:
             response = requests.get(url)
         except (requests.exceptions.MissingSchema, requests.exceptions.InvalidURL, requests.exceptions.InvalidSchema, requests.exceptions.ConnectionError):
@@ -123,13 +161,12 @@ class Server(commands.Cog):
             await ctx.guild.create_custom_emoji(name=name, image=response.content)
         except discord.InvalidArgument:
             return await ctx.send("Invalid image type. Only PNG, JPEG and GIF are supported.")
-        await ctx.send(f"Successfully added the emoji {name}")
-        # How to use: the URL must contain .jpg, .png or  .jpeg
-        # Usage: {your_prefix}emojiadd {url} [name of the emoji you want to add]
+        await ctx.send(f"Successfully added the emoji ``[:{name}:]``")
+
 
     @commands.command()
     @commands.has_permissions(manage_emojis=True)
-    async def emojiremove(self, ctx, name): # Remove an emoji
+    async def emojiremove(self, ctx, name):
         emotes = [x for x in ctx.guild.emojis if x.name == name]
         emote_length = len(emotes)
         if not emotes:
@@ -140,14 +177,13 @@ class Server(commands.Cog):
             await ctx.send("Successfully removed the {} emoji!".format(name))
         else:
             await ctx.send("Successfully removed {} emoji with the name {}.".format(emote_length, name))
-            # Usage: for example, you have an emoji called :Toge: and your prefix is "$"
-            # $emojiremove Toge 
-            # Do not use $help :Toge: as it is not designed to work like that. You will get an error
 
     @commands.command()
     async def emojiurl(self, ctx, emoji: Union[discord.Emoji, discord.PartialEmoji]):
-        await ctx.send(f"<{emoji.url}>") # Get the URL of an emoji
-        
+        await ctx.send(f"<{emoji.url}>")
+
+
+
 
 
 def setup(bot):
